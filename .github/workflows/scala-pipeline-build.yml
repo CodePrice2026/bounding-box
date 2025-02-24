@@ -23,7 +23,11 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin' # A popular JDK distribution
-
+      # Step 3: Install SBT
+      - name: Install SBT
+        run: |
+          curl -L https://github.com/sbt/sbt/releases/download/v1.9.7/sbt-1.9.7.tgz | tar xz
+          echo "$(pwd)/sbt/bin" >> $GITHUB_PATH
       # Step 3: Cache SBT dependencies for faster builds
       - name: Cache SBT
         uses: actions/cache@v3
