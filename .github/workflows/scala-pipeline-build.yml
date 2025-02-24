@@ -1,0 +1,47 @@
+name: BoundingBox CI Pipeline
+
+# Trigger the workflow on push or pull requests to the main branch
+on:
+  push:
+    branches: [ dev,main ]
+  pull_request:
+    branches: [ dev,main ]
+
+# Define the jobs to run
+jobs:
+  build:
+    runs-on: ubuntu-latest # Use an Ubuntu runner
+
+    steps:
+      # Step 1: Checkout the repository code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up JDK (Scala requires Java)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin' # A popular JDK distribution
+
+      # Step 3: Cache SBT dependencies for faster builds
+      - name: Cache SBT
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.ivy2/cache
+            ~/.sbt
+          key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt') }}
+          restore-keys: ${{ runner.os }}-sbt-
+
+      # Step 4: Format the code
+      - name: Format code
+        run: sbt scalafmtCheckAll # Checks formatting; fails if not formatted
+
+      # Step 5: Run tests
+      - name: Run tests
+        run: sbt test
+
+      # Step 6: Build the project
+      - name: Build project
+        run: sbt assembly
